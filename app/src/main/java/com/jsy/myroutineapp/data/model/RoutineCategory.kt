@@ -5,5 +5,5 @@ enum class RoutineCategory {
     HEALTH,
     STUDY,
     READING,
-    LIFESTYLE
+    LIFE
 }
