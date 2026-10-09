@@ -4,4 +4,6 @@
     <string name="BottomTab_label_today">오늘</string>
     <string name="BottomTab_label_record">기록</string>
     <string name="BottomTab_label_statistic">통계</string>
+    <string name="Today_header_body">오늘의 루틴을 시작해요</string>
+    <string name="Today_header_desc">작은 습관 하나씩 쌓아봐요</string>
 </resources>
