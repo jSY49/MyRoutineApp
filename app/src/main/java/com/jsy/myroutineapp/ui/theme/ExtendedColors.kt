@@ -5,6 +5,7 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
+import com.jsy.myroutineapp.data.model.RoutineCategory
 
 @Immutable
 data class CategoryColor(val main: Color, val container: Color)
@@ -31,7 +32,15 @@ data class ExtendedColors(
     val study: CategoryColor = CategoryColor(Study, StudyContainer),
     val reading: CategoryColor = CategoryColor(Reading, ReadingContainer),
     val life: CategoryColor = CategoryColor(Life, LifeContainer),
-)
+){
+    fun categoryColor(category: RoutineCategory): CategoryColor = when (category) {
+        RoutineCategory.EXERCISE -> exercise
+        RoutineCategory.HEALTH -> health
+        RoutineCategory.STUDY -> study
+        RoutineCategory.READING -> reading
+        RoutineCategory.LIFE -> life
+    }
+}
 
 val LocalExtendedColors = staticCompositionLocalOf { ExtendedColors() }
 
