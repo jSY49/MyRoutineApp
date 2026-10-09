@@ -39,7 +39,11 @@ import com.jsy.myroutineapp.ui.theme.TextTertiary
 import com.jsy.myroutineapp.ui.today.TodayScreen
 
 @Composable
-fun MainScreen(modifier: Modifier = Modifier) {
+fun MainScreen(
+    onAddRoutineClick: () -> Unit = {},
+    onRoutineClick: (routineId: Long) -> Unit = {},
+    modifier: Modifier = Modifier
+) {
 
     val tabs = listOf(
         BottomTabs.TodayTab,
@@ -95,7 +99,10 @@ fun MainScreen(modifier: Modifier = Modifier) {
     ) { innerPadding ->
         Box(modifier = Modifier.padding(innerPadding)) {
             when (currentTab) {
-                BottomTabs.TodayTab -> TodayScreen()
+                BottomTabs.TodayTab -> TodayScreen(
+                    onAddRoutineClick = onAddRoutineClick,
+                    onRoutineClick = onRoutineClick
+                )
                 BottomTabs.RecordTab -> RecordScreen()
                 BottomTabs.StatisticTab -> StatisticScreen()
             }
