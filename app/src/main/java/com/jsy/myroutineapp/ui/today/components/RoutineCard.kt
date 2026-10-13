@@ -1,11 +1,8 @@
 package com.jsy.myroutineapp.ui.today.components
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -22,10 +19,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.jsy.myroutineapp.data.model.RoutineCategory
+import com.jsy.myroutineapp.ui.common.IcBox
 import com.jsy.myroutineapp.ui.common.MultipleDevicePreview
 import com.jsy.myroutineapp.ui.common.iconRes
 import com.jsy.myroutineapp.ui.theme.OnPrimary
@@ -73,21 +69,7 @@ fun RoutineCard(
         ) {
 
             //IC
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier
-                    .background(
-                        color.container,
-                        RoundedCornerShape(8.dp)
-                    )
-                    .size(44.dp)
-            ) {
-                Image(
-                    painter = painterResource(category.iconRes),
-                    contentDescription = title,
-                    colorFilter = ColorFilter.tint(color.main)
-                )
-            }
+            IcBox(color,category.iconRes,title)
 
             //Contents
             Column(
