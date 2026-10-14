@@ -30,7 +30,7 @@ fun AppNavHost(modifier: Modifier = Modifier) {
         }
 
         composable(Routes.ADD_ROUTINE) {
-            AddRoutineScreen()
+            AddRoutineScreen( navController = navController)
         }
 
         composable(

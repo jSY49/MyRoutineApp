@@ -12,5 +12,6 @@ data class Routine(
     val title: String,
     val category: RoutineCategory,
     val repeatDays: Set<DayOfWeek>,
+    val description : String,
     val startDate: LocalDate
 )

@@ -156,6 +156,7 @@ private fun TodayContent(
                     category = routine.category,
                     title = routine.title,
                     repeatDays = routine.repeatDays.toRepeatText(),
+                    description = routine.description,
                     isChecked = routine.id in checkedIds,
                     onCheckedChange = { checked ->
                         onCheckedChange(
@@ -195,6 +196,7 @@ private fun TodayContentPreview() {
                     title = "물 2L 마시기",
                     category = RoutineCategory.HEALTH,
                     repeatDays = DayOfWeek.entries.toSet(),
+                    description = "",
                     startDate = LocalDate.of(
                         2026,
                         10,
@@ -210,6 +212,7 @@ private fun TodayContentPreview() {
                         DayOfWeek.WEDNESDAY,
                         DayOfWeek.FRIDAY
                     ),
+                    description = "dd",
                     startDate = LocalDate.of(
                         2026,
                         10,
