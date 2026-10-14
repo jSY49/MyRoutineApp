@@ -25,4 +25,30 @@
     <string name="Today_empty_title">오늘 예정된 루틴이 없어요</string>
     <string name="Today_empty_desc">푹 쉬고 다음 루틴에서 다시 이어가요. 할 일이 생겼다면 바로 추가할 수 있어요.</string>
     <string name="Today_empty_add">루틴 추가하기</string>
+
+    <!--  루틴 추가  -->
+    <string name="Add_TopBar_title">새 루틴</string>
+    <string name="Add_section_preview_title">미리보기</string>
+    <string name="Add_input_title">루틴 이름</string>
+    <string name="Add_input_title_placeholder">운동</string>
+    <string name="Add_input_cate">카테고리</string>
+    <string name="Add_input_cate_desc">카테고리 색상이 루틴에 자동으로 적용돼요</string>
+    <string name="Add_input_date_title">반복 요일</string>
+    <string name="Add_input_goal_title">목표</string>
+    <string name="Add_input_goal_desc">선택</string>
+    <string name="Add_input_goal_placeholder">30분 유산소</string>
+    <string name="Add_save">저장하기</string>
+    <string name="Add_error_title_empty">루틴 이름을 입력해주세요</string>
+    <string name="Add_error_days_empty">반복 요일을 하나 이상 선택해주세요</string>
+
+    <!--  카테고리  -->
+    <string name="category_exercise">운동</string>
+    <string name="category_health">건강</string>
+    <string name="category_study">공부</string>
+    <string name="category_reading">독서</string>
+    <string name="category_life">생활</string>
+
+    <!--  contentDescription  -->
+    <string name="close">닫기</string>
+
 </resources>
