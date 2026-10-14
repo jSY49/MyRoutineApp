@@ -42,17 +42,21 @@ fun RoutineCard(
     isChecked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true
 ) {
 
     val color = RoutineTheme.colors.categoryColor(category)
+    val containerColor = if (isChecked) RoutineTheme.colors.successContainer else Surface
 
     Card(
         modifier = modifier
             .fillMaxWidth(),
+        enabled = enabled,
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
-            containerColor = if (isChecked) RoutineTheme.colors.successContainer else Surface
+            containerColor = containerColor,
+            disabledContainerColor = containerColor
         ),
         border = BorderStroke(
             width = 1.dp,
@@ -95,10 +99,13 @@ fun RoutineCard(
             Checkbox(
                 checked = isChecked,
                 onCheckedChange = onCheckedChange,
+                enabled = enabled,
                 colors = CheckboxDefaults.colors(
                     checkedColor = RoutineTheme.colors.success,
                     uncheckedColor = RoutineTheme.colors.outlineStrong,
-                    checkmarkColor = OnPrimary
+                    checkmarkColor = OnPrimary,
+                    disabledCheckedColor = RoutineTheme.colors.success,
+                    disabledUncheckedColor = RoutineTheme.colors.outlineStrong
                 )
             )
         }

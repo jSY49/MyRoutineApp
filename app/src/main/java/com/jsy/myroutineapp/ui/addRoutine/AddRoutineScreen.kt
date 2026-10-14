@@ -45,6 +45,7 @@ import com.jsy.myroutineapp.ui.common.CommonButton
 import com.jsy.myroutineapp.ui.common.CommonInputBox
 import com.jsy.myroutineapp.ui.common.toRepeatText
 import com.jsy.myroutineapp.ui.theme.OnSurface
+import com.jsy.myroutineapp.ui.theme.TextTertiary
 import com.jsy.myroutineapp.ui.theme.Typography
 import com.jsy.myroutineapp.ui.today.components.RoutineCard
 import java.time.DayOfWeek
@@ -70,6 +71,7 @@ fun AddRoutineScreen(
     )
 
     Scaffold(
+        modifier = Modifier.imePadding(),
         topBar = {
             TopAppBar(
                 navigationIcon = {
@@ -103,7 +105,12 @@ fun AddRoutineScreen(
                                 else -> null
                             }
                             if (errorMessage != null) {
-                                Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
+                                Toast.makeText(
+                                    context,
+                                    errorMessage,
+                                    Toast.LENGTH_SHORT
+                                )
+                                    .show()
                                 return@CommonButton
                             }
 
@@ -130,9 +137,15 @@ fun AddRoutineScreen(
             modifier = Modifier
                 .padding(innerPadding)
                 .verticalScroll(rememberScrollState())
-                .imePadding()
                 .padding(16.dp)
         ) {
+
+            Text(
+                text = stringResource(R.string.Add_section_preview_title),
+                color = TextTertiary,
+                style = Typography.labelSmall,
+                modifier = Modifier.padding(vertical = 8.dp)
+            )
 
             RoutineCard(
                 category = routineCategory,
@@ -141,7 +154,8 @@ fun AddRoutineScreen(
                 description = routineDesc.ifBlank { stringResource(R.string.Add_input_goal_placeholder) },
                 isChecked = false,
                 onCheckedChange = {},
-                onClick = {}
+                onClick = {},
+                enabled = false
             )
 
             Spacer(Modifier.size(16.dp))
