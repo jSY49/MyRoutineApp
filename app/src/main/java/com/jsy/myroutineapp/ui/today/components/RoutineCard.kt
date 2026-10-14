@@ -38,6 +38,7 @@ fun RoutineCard(
     category: RoutineCategory,
     title: String,
     repeatDays: String,
+    description: String,
     isChecked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
     onClick: () -> Unit,
@@ -84,7 +85,7 @@ fun RoutineCard(
                 Spacer(modifier = Modifier.size(8.dp))
                 Text(
                     color = if (isChecked) SuccessText else OnSurfaceVariant,
-                    text = repeatDays,
+                    text = "${repeatDays} · ${description}",
                     style = Typography.bodySmall
                 )
 
@@ -116,6 +117,7 @@ private fun RoutineCardPreview() {
             repeatDays = "매일",
             isChecked = true,
             category = RoutineCategory.HEALTH,
+            description = "",
             onCheckedChange = {},
             onClick = {}
         )
@@ -126,6 +128,7 @@ private fun RoutineCardPreview() {
             repeatDays = "매일",
             isChecked = false,
             category = RoutineCategory.HEALTH,
+            description = "",
             onCheckedChange = {},
             onClick = {}
         )
