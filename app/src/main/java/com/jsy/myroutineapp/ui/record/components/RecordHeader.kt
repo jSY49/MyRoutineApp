@@ -21,7 +21,7 @@ import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 @Composable
-fun TodayHeader(modifier: Modifier = Modifier) {
+fun RecordHeader(modifier: Modifier = Modifier) {
 
     val formatter = DateTimeFormatter.ofPattern(
         "MM월 d일 E요일",
@@ -33,26 +33,14 @@ fun TodayHeader(modifier: Modifier = Modifier) {
     Column(
         modifier = modifier.fillMaxWidth().padding(vertical = 16.dp)
     ) {
+
         Text(
-            text = text,
-            style = Typography.bodyMedium,
-            color = Primary,
-            modifier = Modifier.fillMaxWidth()
-        )
-        Spacer(modifier = Modifier.size(4.dp))
-        Text(
-            text = stringResource(R.string.Today_header_body),
+            text = stringResource(R.string.Record_title),
             style = Typography.headlineMedium,
             color = OnSurface,
             modifier = Modifier.fillMaxWidth()
         )
-        Spacer(modifier = Modifier.size(4.dp))
-        Text(
-            text = stringResource(R.string.Today_header_desc),
-            color = OnSurfaceVariant,
-            style = Typography.bodyMedium,
-            modifier = Modifier.fillMaxWidth()
-        )
+
     }
 }
 
@@ -61,5 +49,5 @@ fun TodayHeader(modifier: Modifier = Modifier) {
 )
 @Composable
 private fun TodayHeaderPreview() {
-    TodayHeader()
+    RecordHeader()
 }
