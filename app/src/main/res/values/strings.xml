@@ -48,6 +48,25 @@
     <string name="category_reading">독서</string>
     <string name="category_life">생활</string>
 
+    <!--  기록  -->
+    <string name="Record_title">기록</string>
+    <string name="Record_today_button">오늘</string>
+    <string name="Record_calendar_title">%1$d년 %2$d월</string>
+    <string name="Record_prev_month">이전 달</string>
+    <string name="Record_next_month">다음 달</string>
+    <string name="Record_legend_selected">선택</string>
+    <string name="Record_legend_today">오늘</string>
+    <string name="Record_legend_rate_min">달성률 0%</string>
+    <string name="Record_legend_rate_max">100%</string>
+    <string name="Record_date_title">%1$d월 %2$d일 %3$s</string>
+    <string name="Record_date_title_today">%1$d월 %2$d일 %3$s · 오늘</string>
+    <string name="Record_complete_count">%1$d / %2$d 완료</string>
+    <string name="Record_status_done">완료</string>
+    <string name="Record_status_todo">진행 전</string>
+    <string name="Record_edit_hint">상태를 눌러 기록을 수정할 수 있어요</string>
+    <string name="Record_empty">이 날은 예정된 루틴이 없어요</string>
+
+
     <!--  contentDescription  -->
     <string name="close">닫기</string>
 
