@@ -66,6 +66,34 @@
     <string name="Record_edit_hint">상태를 눌러 기록을 수정할 수 있어요</string>
     <string name="Record_empty">이 날은 예정된 루틴이 없어요</string>
 
+    <!-- 통계  -->
+    <string name="Statistic_title">통계</string>
+
+    <!--  통계 요약 카드  -->
+    <string name="Statistic_week_rate_label">이번 주 달성률</string>
+    <string name="Statistic_week_rate_value">%1$d%%</string>
+    <string name="Statistic_week_rate_desc">%1$d / %2$d 완료 · 월요일부터</string>
+    <string name="Statistic_best_streak_label">최장 연속 루틴</string>
+    <string name="Statistic_best_streak_value">%1$d일</string>
+
+    <!--  루틴별 연속 달성  -->
+    <string name="Statistic_streak_title">루틴별 연속 달성</string>
+    <string name="Statistic_streak_desc">최근 7회 수행</string>
+    <string name="Statistic_streak_best">최고 %1$d일</string>
+    <string name="Statistic_streak_badge_days">%1$d일</string>
+    <string name="Statistic_streak_badge_times">%1$d회</string>
+
+    <!--  최근 7일  -->
+    <string name="Statistic_week_title">최근 7일</string>
+    <string name="Statistic_week_compare">지난주보다 %1$s%%p</string>
+    <string name="Statistic_week_bar_rate">%1$d%%</string>
+    <string name="Statistic_week_today">오늘</string>
+
+    <!--  루틴별 달성률  -->
+    <string name="Statistic_rate_title">루틴별 달성률</string>
+    <string name="Statistic_rate_desc">최근 30일</string>
+    <string name="Statistic_rate_percent">%1$d%%</string>
+
 
     <!--  contentDescription  -->
     <string name="close">닫기</string>
