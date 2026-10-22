@@ -1,23 +1,26 @@
 package com.jsy.myroutineapp.ui.statistic
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jsy.myroutineapp.data.local.RoutineDao
 import com.jsy.myroutineapp.data.model.Routine
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import java.time.DayOfWeek
 import java.time.LocalDate
+import javax.inject.Inject
 
-class StatisticsViewModel(dao: RoutineDao) : ViewModel() {
+@HiltViewModel
+class StatisticsViewModel @Inject constructor(private val dao: RoutineDao) : ViewModel() {
 
+    //Todo Today 로직 수정 ( 자정 ) -> record도 해야함.
     private val routines = dao.observeAllRoutines()
-    private val today = LocalDate.now()
-    private val weekStartDay = today.with(DayOfWeek.MONDAY)
+    private val today = MutableStateFlow(LocalDate.now())
+    private val weekStartDay = today.value.with(DayOfWeek.MONDAY)
     private val weekEndDay = weekStartDay.plusDays(6)
 
     private val weekRecords = dao.observeRangeRoutineRecords(weekStartDay, weekEndDay)
@@ -38,7 +41,7 @@ class StatisticsViewModel(dao: RoutineDao) : ViewModel() {
         routines, weekRecords
     ) { routines, records ->  //flow를 두개 묶어서 하나라도 새 값을 보내면 최신 값 두개로 다시 실행
         // A to B: Pair(A, B)를 만드는 중위 함수 / 앞 = 이번주 완료 횟수, 뒤 = 분모
-        records.size to scheduledCount(routines, weekStartDay, today)
+        records.size to scheduledCount(routines, weekStartDay, today.value)
     // stateIn: Flow -> StateFlow 변환
     // viewModelScope: ViewModel이 살아있는 동안 유지
     // WhileSubscribed(5_000): 화면이 구독 중일 때만 DB를 관찰, 구독이 끊기면 5초 뒤 중단 (화면 회전 등은 버팀)
