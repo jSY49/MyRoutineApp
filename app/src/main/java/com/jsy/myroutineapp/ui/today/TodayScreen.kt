@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -20,18 +19,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.lifecycle.viewmodel.initializer
-import androidx.lifecycle.viewmodel.viewModelFactory
 import com.jsy.myroutineapp.R
-import com.jsy.myroutineapp.RoutineApplication
 import com.jsy.myroutineapp.data.model.Routine
 import com.jsy.myroutineapp.data.model.RoutineCategory
 import com.jsy.myroutineapp.ui.common.MultipleDevicePreview
@@ -56,12 +51,7 @@ fun TodayScreen(
     modifier: Modifier = Modifier
 ) {
 
-    val appContext = LocalContext.current.applicationContext as RoutineApplication
-    val viewModel: TodayViewModel = viewModel(
-        factory = viewModelFactory {
-            initializer { TodayViewModel(appContext.database.routineDao()) }
-        }
-    )
+    val viewModel: TodayViewModel = hiltViewModel()
 
     val routines by viewModel.routines.collectAsStateWithLifecycle()
     val records by viewModel.records.collectAsStateWithLifecycle()

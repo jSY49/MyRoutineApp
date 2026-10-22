@@ -10,21 +10,16 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.Surface as M3Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.lifecycle.viewmodel.initializer
-import androidx.lifecycle.viewmodel.viewModelFactory
 import com.jsy.myroutineapp.R
-import com.jsy.myroutineapp.RoutineApplication
 import com.jsy.myroutineapp.data.model.Routine
 import com.jsy.myroutineapp.data.model.RoutineCategory
 import com.jsy.myroutineapp.ui.common.MultipleDevicePreview
@@ -43,17 +38,13 @@ import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.TextStyle
 import java.util.Locale
+import androidx.compose.material3.Surface as M3Surface
 
 // ViewModel/DB를 다루는 화면 (프리뷰 불가)
 @Composable
 fun RecordScreen(modifier: Modifier = Modifier) {
 
-    val appContext = LocalContext.current.applicationContext as RoutineApplication
-    val viewModel: RecordViewModel = viewModel(
-        factory = viewModelFactory {
-            initializer { RecordViewModel(appContext.database.routineDao()) }
-        }
-    )
+    val viewModel: RecordViewModel = hiltViewModel()
 
     val month by viewModel.month.collectAsStateWithLifecycle()
     val selected by viewModel.selected.collectAsStateWithLifecycle()

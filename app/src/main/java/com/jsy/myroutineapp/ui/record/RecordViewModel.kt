@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.jsy.myroutineapp.data.local.RoutineDao
 import com.jsy.myroutineapp.data.model.Routine
 import com.jsy.myroutineapp.data.model.RoutineRecord
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -16,8 +17,10 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.YearMonth
+import javax.inject.Inject
 
-class RecordViewModel(private val dao: RoutineDao) : ViewModel() {
+@HiltViewModel
+class RecordViewModel @Inject constructor(private val dao: RoutineDao) : ViewModel() {
 
     val today: LocalDate = LocalDate.now()
 
