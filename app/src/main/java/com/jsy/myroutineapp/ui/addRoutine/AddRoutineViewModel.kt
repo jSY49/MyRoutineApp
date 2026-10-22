@@ -5,18 +5,14 @@ import androidx.lifecycle.viewModelScope
 import com.jsy.myroutineapp.data.local.RoutineDao
 import com.jsy.myroutineapp.data.model.Routine
 import com.jsy.myroutineapp.data.model.RoutineCategory
-import com.jsy.myroutineapp.data.model.RoutineRecord
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.stateIn
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import java.time.DayOfWeek
 import java.time.LocalDate
+import javax.inject.Inject
 
-class AddRoutineViewModel(private val dao: RoutineDao) : ViewModel() {
+@HiltViewModel
+class AddRoutineViewModel @Inject constructor(private val dao: RoutineDao) : ViewModel() {
 
     fun save(
         title: String,
