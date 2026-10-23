@@ -35,8 +35,6 @@ data class DayRate(
 @Composable
 fun Recent7DayCard(
     days: List<DayRate>,
-    /** 지난주 대비 달성률 변화(%p). 양수면 +, 음수면 - 로 표시 */
-    weekDiff: Int,
     modifier: Modifier = Modifier,
 ) {
     val shape = RoundedCornerShape(20.dp)
@@ -67,15 +65,7 @@ fun Recent7DayCard(
                 style = Typography.titleSmall,
                 modifier = Modifier.padding(vertical = 2.dp)
             )
-            Text(
-                text = stringResource(
-                    R.string.Statistic_week_compare,
-                    String.format("%+d", weekDiff)
-                ),
-                color = OnSurfaceVariant,
-                style = Typography.labelMedium,
-                modifier = Modifier.padding(vertical = 2.dp)
-            )
+
         }
 
         // 스크롤 없이 폭에 맞춰 7칸이 균등하게 줄어들도록 Row + weight 사용
@@ -115,7 +105,6 @@ private fun Recent7DayCardPreview() {
             DayRate("일", 100),
             DayRate("월", 100),
             DayRate("오늘", 75, isToday = true)
-        ),
-        weekDiff = 5
+        )
     )
 }

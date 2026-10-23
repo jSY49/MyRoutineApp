@@ -19,13 +19,10 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.jsy.myroutineapp.data.model.Routine
 import com.jsy.myroutineapp.data.model.RoutineCategory
-import com.jsy.myroutineapp.ui.statistic.components.BestStreakCard
 import com.jsy.myroutineapp.ui.statistic.components.DayRate
 import com.jsy.myroutineapp.ui.statistic.components.Recent30DaysRateCard
 import com.jsy.myroutineapp.ui.statistic.components.Recent7DayCard
 import com.jsy.myroutineapp.ui.statistic.components.RoutineRate
-import com.jsy.myroutineapp.ui.statistic.components.RoutineStreak
-import com.jsy.myroutineapp.ui.statistic.components.RoutineStreakCard
 import com.jsy.myroutineapp.ui.statistic.components.StatisticHeader
 import com.jsy.myroutineapp.ui.statistic.components.WeekRateCard
 import com.jsy.myroutineapp.ui.theme.Background
@@ -36,18 +33,25 @@ import java.time.LocalDate
 fun StatisticScreen(modifier: Modifier = Modifier) {
 
     val viewModel: StatisticsViewModel = hiltViewModel()
-    val (done, total) = viewModel.weekProgress.collectAsState().value
+    val (done, total) = viewModel.thisWeek.collectAsState().value
+    val (lastDone, lastTotal) = viewModel.lastWeek.collectAsState().value
+    val lastWeekCompletePercent = if (lastTotal == 0) 0 else lastDone * 100 / lastTotal
+    val sevenDayRate = viewModel.recent7DaysRate.collectAsState().value
 
     StatisticContent(
         weekTotalCount = total,
         weekDoneCount = done,
+        lastWeekCompletePercent = lastWeekCompletePercent,
+        sevenDayRate = sevenDayRate
     )
 }
 
 @Composable
 private fun StatisticContent(
-    weekTotalCount : Int, 
-    weekDoneCount : Int,
+    weekTotalCount: Int,
+    weekDoneCount: Int,
+    lastWeekCompletePercent: Int,
+    sevenDayRate: List<DayRate>,
     modifier: Modifier = Modifier
 ) {
 
@@ -76,58 +80,19 @@ private fun StatisticContent(
                 WeekRateCard(
                     total = weekTotalCount,
                     done = weekDoneCount,
+                    lastWeek = lastWeekCompletePercent,
                     modifier = Modifier
                         .fillMaxHeight()
                         .weight(1f)
                         .padding(end = 8.dp)
                 )
-                BestStreakCard(
-                    day = 10,
-                    name = "물마시기",
-                    modifier = Modifier
-                        .fillMaxHeight()
-                        .weight(1f)
-                        .padding(start = 8.dp)
-                )
+
             }
         }
 
         item {
-            RoutineStreakCard(
-                streaks = listOf(
-                    RoutineStreak(
-                        sampleRoutine(1, "물 2L 마시기", RoutineCategory.HEALTH), 23, 23,
-                        List(7) { true }
-                    ),
-                    RoutineStreak(
-                        sampleRoutine(2, "운동 30분", RoutineCategory.EXERCISE), 3, 6,
-                        listOf(true, true, true, false, true, true, true)
-                    ),
-                    RoutineStreak(
-                        sampleRoutine(3, "영어 공부 20분", RoutineCategory.STUDY), 6, 16,
-                        listOf(false, true, true, true, true, true, true)
-                    ),
-                    RoutineStreak(
-                        sampleRoutine(4, "책 읽기 30분", RoutineCategory.READING), 5, 9,
-                        listOf(false, false, true, true, true, true, true)
-                    )
-                ),
-                modifier = Modifier.fillMaxWidth()
-            )
-        }
-
-        item {
             Recent7DayCard(
-                days = listOf(
-                    DayRate("수", 33),
-                    DayRate("목", 75),
-                    DayRate("금", 100),
-                    DayRate("토", 100),
-                    DayRate("일", 100),
-                    DayRate("월", 100),
-                    DayRate("오늘", 75, isToday = true)
-                ),
-                weekDiff = 5,
+                days = sevenDayRate,
                 modifier = Modifier.fillMaxWidth()
             )
         }
@@ -135,10 +100,38 @@ private fun StatisticContent(
         item {
             Recent30DaysRateCard(
                 rates = listOf(
-                    RoutineRate(sampleRoutine(1, "물 2L 마시기", RoutineCategory.HEALTH), 97),
-                    RoutineRate(sampleRoutine(2, "운동 30분", RoutineCategory.EXERCISE), 77),
-                    RoutineRate(sampleRoutine(3, "영어 공부 20분", RoutineCategory.STUDY), 87),
-                    RoutineRate(sampleRoutine(4, "책 읽기 30분", RoutineCategory.READING), 70)
+                    RoutineRate(
+                        sampleRoutine(
+                            1,
+                            "물 2L 마시기",
+                            RoutineCategory.HEALTH
+                        ),
+                        97
+                    ),
+                    RoutineRate(
+                        sampleRoutine(
+                            2,
+                            "운동 30분",
+                            RoutineCategory.EXERCISE
+                        ),
+                        77
+                    ),
+                    RoutineRate(
+                        sampleRoutine(
+                            3,
+                            "영어 공부 20분",
+                            RoutineCategory.STUDY
+                        ),
+                        87
+                    ),
+                    RoutineRate(
+                        sampleRoutine(
+                            4,
+                            "책 읽기 30분",
+                            RoutineCategory.READING
+                        ),
+                        70
+                    )
                 ),
                 modifier = Modifier.fillMaxWidth()
             )
@@ -154,7 +147,11 @@ private fun sampleRoutine(id: Long, title: String, category: RoutineCategory) = 
     category = category,
     repeatDays = DayOfWeek.entries.toSet(),
     description = "",
-    startDate = LocalDate.of(2026, 10, 1)
+    startDate = LocalDate.of(
+        2026,
+        10,
+        1
+    )
 )
 
 @Preview(
@@ -186,5 +183,37 @@ private fun StatisticScreenPreview() {
     StatisticContent(
         weekTotalCount = 10,
         weekDoneCount = 3,
+        lastWeekCompletePercent = 10,
+        sevenDayRate = listOf(
+            DayRate(
+                "수",
+                33
+            ),
+            DayRate(
+                "목",
+                75
+            ),
+            DayRate(
+                "금",
+                100
+            ),
+            DayRate(
+                "토",
+                100
+            ),
+            DayRate(
+                "일",
+                100
+            ),
+            DayRate(
+                "월",
+                100
+            ),
+            DayRate(
+                "오늘",
+                75,
+                isToday = true
+            )
+        )
     )
 }

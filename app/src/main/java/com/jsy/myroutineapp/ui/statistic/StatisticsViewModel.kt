@@ -4,53 +4,127 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jsy.myroutineapp.data.local.RoutineDao
 import com.jsy.myroutineapp.data.model.Routine
+import com.jsy.myroutineapp.data.model.RoutineRecord
+import com.jsy.myroutineapp.ui.statistic.components.DayRate
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.count
 import kotlinx.coroutines.flow.stateIn
 import java.time.DayOfWeek
 import java.time.LocalDate
+import java.time.format.TextStyle
+import java.util.Locale
 import javax.inject.Inject
+import kotlin.collections.count
+import kotlin.sequences.takeWhile
 
 @HiltViewModel
 class StatisticsViewModel @Inject constructor(private val dao: RoutineDao) : ViewModel() {
 
     //Todo Today 로직 수정 ( 자정 ) -> record도 해야함.
-    private val routines = dao.observeAllRoutines()
-    private val today = MutableStateFlow(LocalDate.now())
-    private val weekStartDay = today.value.with(DayOfWeek.MONDAY)
-    private val weekEndDay = weekStartDay.plusDays(6)
+    private val today: MutableStateFlow<LocalDate> = MutableStateFlow(LocalDate.now())
+    private val weekStartDay: LocalDate = today.value.with(DayOfWeek.MONDAY)   //월요일
+    private val routines: Flow<List<Routine>> = dao.observeAllRoutines()
 
-    private val weekRecords = dao.observeRangeRoutineRecords(weekStartDay, weekEndDay)
+    // 이번주 달성률 (월~일)
+    private fun weekProgress(weekStart: LocalDate): Flow<Pair<Int, Int>> {
 
-    // 이번주 달성률
-    private fun scheduledCount(routines: List<Routine>, from: LocalDate, to: LocalDate): Int =
-        // generateSequence(시작값) { 다음값 }: from부터 하루씩 더한 날짜를 무한히 만드는 시퀀스 (it = 직전 날짜)
-        // takeWhile { 조건 }: 조건이 참인 동안만 취함 -> to를 넘으면 멈춤 (LocalDate는 <= 비교 가능)
-        // sumOf { }: 날짜마다 블록이 돌려주는 숫자를 모두 더함
-        generateSequence(from) { it.plusDays(1) }.takeWhile { it <= to }.sumOf { date ->
-                // count { 조건 }: 조건이 참인 루틴 개수 (it = 루틴 하나)
-                // 그날 이미 시작했고(startDate <= date) 반복 요일에 포함(in = Set.contains)되는 루틴만 셈
-                routines.count { it.startDate <= date && date.dayOfWeek in it.repeatDays }
+        val weekEnd = weekStart.plusDays(6)
+        return combine(
+            routines,
+            dao.observeRangeRoutineRecords(
+                weekStart,
+                weekEnd
+            )
+        ) { routines, records ->
+
+            //1. 루틴 항목 별 반복해야 하는 횟수 계산
+            val scheduleCnt = totalScheduledCount(
+                listRoutine = routines,
+                from = weekStart,
+                to = weekEnd
+            )
+            //2. 이번주에 완료한 루틴 횟수 계산
+            records.size to scheduleCnt
+        }
+    }
+
+    private fun totalScheduledCount(
+        listRoutine: List<Routine>,
+        from: LocalDate,
+        to: LocalDate
+    ): Int {
+
+        return generateSequence(from) { it.plusDays(1) }.takeWhile { it <= to } //from 부터 to 까지 1씩 크기를 증가해 가면서
+            .sumOf { date ->    // 합
+                listRoutine.count { it.startDate <= date && date.dayOfWeek in it.repeatDays }   // 총 리스트의 수 ( 단, 그 루틴의 시작일 이후 + 그날짜가 반복 횟수 )
             }
+        // 그니까 일정 기간동안 의 날짜를 하루하루 확인 하는데,
+        //이 날짜가 시작일 이후이고, 반복 요일로 설정해둔 날 인 경우를 카운트 해서 모든 루틴의 횟수를 반환
+    }
 
-    // Pair(done, total). StateFlow = 항상 현재 값을 가지는 Flow
-    val weekProgress: StateFlow<Pair<Int, Int>> = combine(
-        routines, weekRecords
-    ) { routines, records ->  //flow를 두개 묶어서 하나라도 새 값을 보내면 최신 값 두개로 다시 실행
-        // A to B: Pair(A, B)를 만드는 중위 함수 / 앞 = 이번주 완료 횟수, 뒤 = 분모
-        records.size to scheduledCount(routines, weekStartDay, today.value)
-    // stateIn: Flow -> StateFlow 변환
-    // viewModelScope: ViewModel이 살아있는 동안 유지
-    // WhileSubscribed(5_000): 화면이 구독 중일 때만 DB를 관찰, 구독이 끊기면 5초 뒤 중단 (화면 회전 등은 버팀)
-    // 0 to 0: 첫 계산 전에 보여줄 초기값
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), 0 to 0)
+    val thisWeek = weekProgress(weekStartDay)
+        .stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(5_000),
+            0 to 0
+        )
 
-    //최장 연속 루틴
-    // 루틴별 연속 달성
+    val lastWeek = weekProgress(weekStartDay.minusWeeks(1))
+        .stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(5_000),
+            0 to 0
+        )
+
     // 최근 7일 달성률
+
+    private fun sevenDaysProgresses(): Flow<List<DayRate>> {
+
+        val end = today.value
+        val start = end.minusDays(6)
+
+        return combine(
+            routines,
+            dao.observeRangeRoutineRecords(
+                start,
+                end
+            )
+        ) { routines, records ->
+
+            generateSequence(start) { it.plusDays(1) }.takeWhile { it <= end }
+                .map { date ->
+
+                    val scheduled =
+                        routines.count { it.startDate <= date && date.dayOfWeek in it.repeatDays }   // 그날 해야 할 루틴 수
+                    val done = records.count { it.date == date }        // 그날 완료한 기록 수
+                    val percent = if (scheduled == 0) 0 else done * 100 / scheduled    // 달성률
+
+                    DayRate(
+                        date.dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.KOREAN),
+                        percent,
+                        end == date
+                    )
+                }
+                .toList()
+        }
+
+    }
+
+    val recent7DaysRate = sevenDaysProgresses()
+        .stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(5_000),
+            emptyList()
+        )
+
     // 루틴별 달성률
+
+
+    // 루틴별 연속 달성
 
 }
