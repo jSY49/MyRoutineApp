@@ -33,6 +33,16 @@ interface RoutineDao {
     @Query("SELECT * FROM routine_records WHERE date BETWEEN :from AND :to")
     fun observeRangeRoutineRecords(from: LocalDate, to: LocalDate): Flow<List<RoutineRecord>>
 
+    @Query(
+        "SELECT * FROM routine_records " +
+                "WHERE routineId = :routineId AND date BETWEEN :from AND :to"
+    )
+    fun observeRangeSpecialRoutineRecord(
+        routineId: Long,
+        from: LocalDate,
+        to: LocalDate
+    ): Flow<List<RoutineRecord>>
+
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertRecord(routineRecord: RoutineRecord): Long
 
