@@ -6,6 +6,7 @@ import com.jsy.myroutineapp.data.local.RoutineDao
 import com.jsy.myroutineapp.data.model.Routine
 import com.jsy.myroutineapp.data.model.RoutineRecord
 import com.jsy.myroutineapp.ui.statistic.components.DayRate
+import com.jsy.myroutineapp.ui.statistic.components.RoutineRate
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -126,5 +127,50 @@ class StatisticsViewModel @Inject constructor(private val dao: RoutineDao) : Vie
 
 
     // 루틴별 연속 달성
+    private fun routinesRate(start: LocalDate): Flow<List<RoutineRate>> {
+
+        val end = start.plusDays(29)    //오늘 포함 30일 기록
+
+        return combine(
+            routines,
+            dao.observeRangeRoutineRecords(
+                start,
+                end
+            )
+        ) { routines, records ->
+
+            val doneByRoutine = records.groupBy { it.routineId }
+
+            routines.map { routine ->
+
+                val scheduled = scheduledCount( routine, start , end)
+                val done = doneByRoutine[routine.id]?.size ?: 0
+
+                val percent = if(scheduled == 0 ) 0 else done * 100 /scheduled
+                RoutineRate(routine,percent)
+            }
+        }
+
+
+    }
+
+    private fun scheduledCount(
+        routine: Routine,
+        from: LocalDate,
+        to: LocalDate
+    ): Int {
+
+        return generateSequence(from) {it.plusDays(1)}
+            .takeWhile { it <= to }
+            .count{ date -> routine.startDate <= date && date.dayOfWeek in routine.repeatDays}
+
+    }
+
+    val routines30Rates = routinesRate(today.value.minusDays(29))
+        .stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(5_000),
+            emptyList()
+        )
 
 }

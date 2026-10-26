@@ -26,6 +26,7 @@ import com.jsy.myroutineapp.ui.statistic.components.RoutineRate
 import com.jsy.myroutineapp.ui.statistic.components.StatisticHeader
 import com.jsy.myroutineapp.ui.statistic.components.WeekRateCard
 import com.jsy.myroutineapp.ui.theme.Background
+import kotlinx.coroutines.flow.Flow
 import java.time.DayOfWeek
 import java.time.LocalDate
 
@@ -37,12 +38,14 @@ fun StatisticScreen(modifier: Modifier = Modifier) {
     val (lastDone, lastTotal) = viewModel.lastWeek.collectAsState().value
     val lastWeekCompletePercent = if (lastTotal == 0) 0 else lastDone * 100 / lastTotal
     val sevenDayRate = viewModel.recent7DaysRate.collectAsState().value
+    val thirtyDayRate = viewModel.routines30Rates.collectAsState().value
 
     StatisticContent(
         weekTotalCount = total,
         weekDoneCount = done,
         lastWeekCompletePercent = lastWeekCompletePercent,
-        sevenDayRate = sevenDayRate
+        sevenDayRate = sevenDayRate,
+        thirtyDayRate = thirtyDayRate
     )
 }
 
@@ -52,6 +55,7 @@ private fun StatisticContent(
     weekDoneCount: Int,
     lastWeekCompletePercent: Int,
     sevenDayRate: List<DayRate>,
+    thirtyDayRate : List<RoutineRate>,
     modifier: Modifier = Modifier
 ) {
 
@@ -99,60 +103,13 @@ private fun StatisticContent(
 
         item {
             Recent30DaysRateCard(
-                rates = listOf(
-                    RoutineRate(
-                        sampleRoutine(
-                            1,
-                            "물 2L 마시기",
-                            RoutineCategory.HEALTH
-                        ),
-                        97
-                    ),
-                    RoutineRate(
-                        sampleRoutine(
-                            2,
-                            "운동 30분",
-                            RoutineCategory.EXERCISE
-                        ),
-                        77
-                    ),
-                    RoutineRate(
-                        sampleRoutine(
-                            3,
-                            "영어 공부 20분",
-                            RoutineCategory.STUDY
-                        ),
-                        87
-                    ),
-                    RoutineRate(
-                        sampleRoutine(
-                            4,
-                            "책 읽기 30분",
-                            RoutineCategory.READING
-                        ),
-                        70
-                    )
-                ),
+                rates = thirtyDayRate,
                 modifier = Modifier.fillMaxWidth()
             )
         }
     }
 
 }
-
-// 목업 데이터용. ViewModel 연결 후 제거
-private fun sampleRoutine(id: Long, title: String, category: RoutineCategory) = Routine(
-    id = id,
-    title = title,
-    category = category,
-    repeatDays = DayOfWeek.entries.toSet(),
-    description = "",
-    startDate = LocalDate.of(
-        2026,
-        10,
-        1
-    )
-)
 
 @Preview(
     name = "Phone",
@@ -213,6 +170,52 @@ private fun StatisticScreenPreview() {
                 "오늘",
                 75,
                 isToday = true
+            )
+        ),
+        thirtyDayRate =  listOf(
+            RoutineRate(
+                Routine(
+                    id = 1,
+                    title = "물 2L 마시기",
+                    category = RoutineCategory.HEALTH,
+                    repeatDays = DayOfWeek.entries.toSet(),
+                    description = "",
+                    startDate = LocalDate.of(2026, 10, 1)
+                ),
+                97
+            ),
+            RoutineRate(
+                Routine(
+                    id = 2,
+                    title = "운동 30분",
+                    category = RoutineCategory.EXERCISE,
+                    repeatDays = DayOfWeek.entries.toSet(),
+                    description = "",
+                    startDate = LocalDate.of(2026, 10, 1)
+                ),
+                77
+            ),
+            RoutineRate(
+                Routine(
+                    id = 3,
+                    title = "영어 공부 20분",
+                    category = RoutineCategory.STUDY,
+                    repeatDays = DayOfWeek.entries.toSet(),
+                    description = "",
+                    startDate = LocalDate.of(2026, 10, 1)
+                ),
+                87
+            ),
+            RoutineRate(
+                Routine(
+                    id = 4,
+                    title = "책 읽기 30분",
+                    category = RoutineCategory.READING,
+                    repeatDays = DayOfWeek.entries.toSet(),
+                    description = "",
+                    startDate = LocalDate.of(2026, 10, 1)
+                ),
+                70
             )
         )
     )
