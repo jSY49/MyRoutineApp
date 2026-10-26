@@ -19,7 +19,7 @@ class RoutineApplication : Application(){
             val channel = NotificationChannel(
                 ROUTINE,
                 getString(R.string.Notification_channel_routine_name),
-                NotificationManager.IMPORTANCE_DEFAULT
+                NotificationManager.IMPORTANCE_HIGH
             ).apply {
                 description = getString(R.string.Notification_channel_routine_desc)
             }
