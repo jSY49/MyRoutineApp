@@ -2,6 +2,8 @@ package com.jsy.myroutineapp.ui.today
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.jsy.myroutineapp.data.local.AppPreferences
+import com.jsy.myroutineapp.data.local.PrefKeys
 import com.jsy.myroutineapp.data.local.RoutineDao
 import com.jsy.myroutineapp.data.model.Routine
 import com.jsy.myroutineapp.data.model.RoutineRecord
@@ -17,7 +19,20 @@ import java.time.LocalDate
 import javax.inject.Inject
 
 @HiltViewModel
-class TodayViewModel @Inject constructor(private val dao: RoutineDao) : ViewModel() {
+class TodayViewModel @Inject constructor(
+    private val dao: RoutineDao,
+    private val appPreferences: AppPreferences
+) : ViewModel() {
+
+    // 알림 권한은 앱 설치 후 한 번만 요청
+    var notificationPermissionAsked: Boolean
+        get() = appPreferences.getBoolean(PrefKeys.NOTIFICATION_PERMISSION_ASKED)
+        set(value) {
+            appPreferences.putBoolean(
+                PrefKeys.NOTIFICATION_PERMISSION_ASKED,
+                value
+            )
+        }
 
     val routines: StateFlow<List<Routine>> = dao.observeAllRoutines()
         .stateIn(

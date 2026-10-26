@@ -26,6 +26,12 @@
     <string name="Today_empty_desc">푹 쉬고 다음 루틴에서 다시 이어가요. 할 일이 생겼다면 바로 추가할 수 있어요.</string>
     <string name="Today_empty_add">루틴 추가하기</string>
 
+    <!--  알림 권한 거부 다이얼로그  -->
+    <string name="Today_permission_denied_title">알림 권한이 필요해요</string>
+    <string name="Today_permission_denied_desc">권한을 허용하지 않으면 루틴 알림을 받을 수 없어요. 설정에서 허용할 수 있어요.</string>
+    <string name="Today_permission_denied_confirm">설정으로 이동</string>
+    <string name="Today_permission_denied_dismiss">나중에</string>
+
     <!--  루틴 추가  -->
     <string name="Add_TopBar_title">새 루틴</string>
     <string name="Add_section_preview_title">미리보기</string>
