@@ -32,6 +32,12 @@
     <string name="Today_permission_denied_confirm">설정으로 이동</string>
     <string name="Today_permission_denied_dismiss">나중에</string>
 
+    <!--  알림 채널  -->
+    <string name="Notification_channel_routine_name">루틴 알림</string>
+    <string name="Notification_channel_routine_desc">루틴 시간에 맞춰 알려드려요</string>
+    <string name="Notification_routine_title">루틴 알림</string>
+    <string name="Notification_routine_text">오늘의 루틴을 확인해보세요</string>
+
     <!--  루틴 추가  -->
     <string name="Add_TopBar_title">새 루틴</string>
     <string name="Add_section_preview_title">미리보기</string>
