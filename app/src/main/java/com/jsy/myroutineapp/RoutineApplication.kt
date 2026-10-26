@@ -5,13 +5,19 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.os.Build
 import com.jsy.myroutineapp.notification.NotificationChannels.ROUTINE
+import com.jsy.myroutineapp.notification.ReminderScheduler
 import dagger.hilt.android.HiltAndroidApp
+import javax.inject.Inject
 
 @HiltAndroidApp
 class RoutineApplication : Application(){
+
+    @Inject lateinit var reminderScheduler: ReminderScheduler
+
     override fun onCreate() {
         super.onCreate()
         createNotificationChannel()
+        reminderScheduler.schedule()
     }
 
     private fun createNotificationChannel() {
