@@ -1,5 +1,12 @@
 package com.jsy.myroutineapp.ui.today
 
+import android.Manifest
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
+import android.provider.Settings
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -10,18 +17,25 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
@@ -51,7 +65,30 @@ fun TodayScreen(
     modifier: Modifier = Modifier
 ) {
 
+    val context = LocalContext.current
     val viewModel: TodayViewModel = hiltViewModel()
+    var showDeniedDialog by remember { mutableStateOf(false) }
+    val permissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if(!isGranted){
+            showDeniedDialog = true
+        }
+    }
+
+    LaunchedEffect(Unit) {  //컴포저블이 화면에 처음 들어올 때 딱 한번만 실행 하는 블록 코드
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            !viewModel.notificationPermissionAsked &&
+            ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.POST_NOTIFICATIONS
+            )
+            != PackageManager.PERMISSION_GRANTED
+        ) {
+            viewModel.notificationPermissionAsked = true
+            permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+        }
+    }
 
     val routines by viewModel.routines.collectAsStateWithLifecycle()
     val records by viewModel.records.collectAsStateWithLifecycle()
@@ -78,6 +115,29 @@ fun TodayScreen(
         onAddClick = onAddRoutineClick,
         modifier = modifier
     )
+
+    if (showDeniedDialog) {
+        AlertDialog(
+            onDismissRequest = { showDeniedDialog = false },
+            title = { Text(stringResource(R.string.Today_permission_denied_title)) },
+            text = { Text(stringResource(R.string.Today_permission_denied_desc)) },
+            confirmButton = {
+                TextButton(onClick = {
+                    showDeniedDialog = false
+                    val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
+                        putExtra(
+                            Settings.EXTRA_APP_PACKAGE,
+                            context.packageName
+                        )
+                    }
+                    context.startActivity(intent)
+                }) { Text(stringResource(R.string.Today_permission_denied_confirm)) }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeniedDialog = false }) { Text(stringResource(R.string.Today_permission_denied_dismiss)) }
+            }
+        )
+    }
 }
 
 @Composable
