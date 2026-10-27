@@ -89,6 +89,7 @@ private data class MonthRecord(val date: LocalDate, val status: RecordStatus)
 @Composable
 fun RoutineDetailScreen(
     onBack: () -> Unit,
+    onEdit: (routineId: Long) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val viewModel: RoutineDetailViewModel = hiltViewModel()
@@ -109,7 +110,7 @@ fun RoutineDetailScreen(
             onNextMonth = viewModel::nextMonth,
             onToggle = viewModel::setChecked,
             onBack = onBack,
-            onEdit = {},    // TODO: 수정 화면 이동
+            onEdit = { onEdit(it.id) },    // 현재(진행 중인) 줄을 수정
             onDelete = { viewModel.deleteRoutine(onDeleted = onBack) },
             modifier = modifier
         )

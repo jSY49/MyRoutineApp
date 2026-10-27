@@ -18,6 +18,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -31,6 +32,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.jsy.myroutineapp.R
@@ -63,6 +65,20 @@ fun AddRoutineScreen(
 
     val viewModel: AddRoutineViewModel = hiltViewModel()
 
+    // 수정 모드: 불러온 루틴 값으로 입력창을 한 번만 채움 (회전 시 입력 중인 값을 덮어쓰지 않도록)
+    val editing by viewModel.editing.collectAsStateWithLifecycle()
+    var loaded by rememberSaveable { mutableStateOf(false) }
+    LaunchedEffect(editing) {
+        val routine = editing
+        if (routine != null && !loaded) {
+            routineName = routine.title
+            routineCategory = routine.category
+            routineRepeatDays = routine.repeatDays
+            routineDesc = routine.description
+            loaded = true
+        }
+    }
+
     Scaffold(
         modifier = Modifier.imePadding(),
         topBar = {
@@ -77,7 +93,10 @@ fun AddRoutineScreen(
                 },
                 title = {
                     Text(
-                        stringResource(R.string.Add_TopBar_title),
+                        stringResource(
+                            if (viewModel.isEdit) R.string.Add_TopBar_title_edit
+                            else R.string.Add_TopBar_title
+                        ),
                         style = Typography.headlineSmall,
                         color = OnSurface
                     )
@@ -176,6 +195,16 @@ fun AddRoutineScreen(
                         else routineRepeatDays + day
                 },
                 onSelectPreset = { routineRepeatDays = it })
+
+            // 요일을 바꾸면 이후 일정부터 적용되고 이전 기록은 유지됨을 안내
+            if (viewModel.isEdit && editing != null && routineRepeatDays != editing?.repeatDays) {
+                Text(
+                    text = stringResource(R.string.Add_edit_repeat_notice),
+                    color = TextTertiary,
+                    style = Typography.bodySmall,
+                    modifier = Modifier.padding(top = 8.dp)
+                )
+            }
 
             Spacer(Modifier.size(24.dp))
 

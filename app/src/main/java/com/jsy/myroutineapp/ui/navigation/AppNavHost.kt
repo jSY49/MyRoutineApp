@@ -34,12 +34,24 @@ fun AppNavHost(modifier: Modifier = Modifier) {
         }
 
         composable(
+            route = Routes.EDIT_ROUTINE,
+            arguments = listOf(
+                navArgument(Routes.ROUTINE_ID_ARG) { type = NavType.LongType }
+            )
+        ) {
+            AddRoutineScreen(navController = navController)
+        }
+
+        composable(
             route = Routes.ROUTINE_DETAIL,
             arguments = listOf(
                 navArgument(Routes.ROUTINE_ID_ARG) { type = NavType.LongType }
             )
         ) {
-            RoutineDetailScreen(onBack = { navController.popBackStack() })
+            RoutineDetailScreen(
+                onBack = { navController.popBackStack() },
+                onEdit = { routineId -> navController.navigate(Routes.editRoutine(routineId)) }
+            )
         }
     }
 

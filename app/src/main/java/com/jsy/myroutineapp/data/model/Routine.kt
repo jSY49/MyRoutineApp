@@ -23,4 +23,6 @@ data class Routine(
 
 // 그 날짜에 수행해야 하는 루틴인지
 fun Routine.isScheduledOn(date: LocalDate) =
-    !date.isBefore(startDate) && date.dayOfWeek in repeatDays
+    !date.isBefore(startDate) &&
+            (endDate == null || !date.isAfter(endDate)) &&   // 종료된 줄은 종료일 이후 제외
+            date.dayOfWeek in repeatDays

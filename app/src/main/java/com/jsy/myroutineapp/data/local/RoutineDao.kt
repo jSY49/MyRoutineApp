@@ -23,6 +23,9 @@ interface RoutineDao {
     @Query("SELECT * FROM routines WHERE id = :routineId")
     fun observeRoutine(routineId: Long): Flow<Routine?>  // 삭제되면 null
 
+    @Query("SELECT * FROM routines WHERE id = :routineId")
+    suspend fun getRoutine(routineId: Long): Routine?
+
     // 같은 루틴으로 묶인 모든 줄 (요일 변경으로 나뉜 것 포함), 시작일 순
     @Query("SELECT * FROM routines WHERE groupId = :groupId ORDER BY startDate")
     fun observeRoutinesByGroup(groupId: String): Flow<List<Routine>>
@@ -89,6 +92,9 @@ interface RoutineDao {
                 "WHERE routines.groupId = :groupId"
     )
     fun observeRecordsByGroup(groupId: String): Flow<List<RoutineRecord>>
+
+    @Query("SELECT EXISTS(SELECT 1 FROM routine_records WHERE routineId = :routineId AND date = :date)")
+    suspend fun hasRecord(routineId: Long, date: LocalDate): Boolean
 
     // ───────── 기록: 추가 / 삭제 ─────────
 

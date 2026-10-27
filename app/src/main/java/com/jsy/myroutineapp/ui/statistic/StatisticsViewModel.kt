@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jsy.myroutineapp.data.local.RoutineDao
 import com.jsy.myroutineapp.data.model.Routine
-import com.jsy.myroutineapp.data.model.RoutineRecord
+import com.jsy.myroutineapp.data.model.isScheduledOn
 import com.jsy.myroutineapp.ui.statistic.components.DayRate
 import com.jsy.myroutineapp.ui.statistic.components.RoutineRate
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -13,15 +13,12 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.count
 import kotlinx.coroutines.flow.stateIn
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.format.TextStyle
 import java.util.Locale
 import javax.inject.Inject
-import kotlin.collections.count
-import kotlin.sequences.takeWhile
 
 @HiltViewModel
 class StatisticsViewModel @Inject constructor(private val dao: RoutineDao) : ViewModel() {
@@ -62,7 +59,7 @@ class StatisticsViewModel @Inject constructor(private val dao: RoutineDao) : Vie
 
         return generateSequence(from) { it.plusDays(1) }.takeWhile { it <= to } //from 부터 to 까지 1씩 크기를 증가해 가면서
             .sumOf { date ->    // 합
-                listRoutine.count { it.startDate <= date && date.dayOfWeek in it.repeatDays }   // 총 리스트의 수 ( 단, 그 루틴의 시작일 이후 + 그날짜가 반복 횟수 )
+                listRoutine.count { it.isScheduledOn(date) }   // 그날 예정인 루틴 수 (시작일 이후 + 종료일 이전 + 반복 요일)
             }
         // 그니까 일정 기간동안 의 날짜를 하루하루 확인 하는데,
         //이 날짜가 시작일 이후이고, 반복 요일로 설정해둔 날 인 경우를 카운트 해서 모든 루틴의 횟수를 반환
@@ -101,7 +98,7 @@ class StatisticsViewModel @Inject constructor(private val dao: RoutineDao) : Vie
                 .map { date ->
 
                     val scheduled =
-                        routines.count { it.startDate <= date && date.dayOfWeek in it.repeatDays }   // 그날 해야 할 루틴 수
+                        routines.count { it.isScheduledOn(date) }   // 그날 해야 할 루틴 수
                     val done = records.count { it.date == date }        // 그날 완료한 기록 수
                     val percent = if (scheduled == 0) 0 else done * 100 / scheduled    // 달성률
 
@@ -141,14 +138,17 @@ class StatisticsViewModel @Inject constructor(private val dao: RoutineDao) : Vie
 
             val doneByRoutine = records.groupBy { it.routineId }
 
-            routines.map { routine ->
+            // 요일 변경으로 나뉜 줄들은 같은 groupId로 묶어 한 루틴으로 합산
+            routines.groupBy { it.groupId }
+                .values
+                .map { rows ->
+                    val scheduled = rows.sumOf { scheduledCount(it, start, end) }
+                    val done = rows.sumOf { doneByRoutine[it.id]?.size ?: 0 }
 
-                val scheduled = scheduledCount( routine, start , end)
-                val done = doneByRoutine[routine.id]?.size ?: 0
-
-                val percent = if(scheduled == 0 ) 0 else done * 100 /scheduled
-                RoutineRate(routine,percent)
-            }
+                    val percent = if (scheduled == 0) 0 else done * 100 / scheduled
+                    // 이름·카테고리는 가장 최근 줄 기준
+                    RoutineRate(rows.maxBy { it.startDate }, percent)
+                }
         }
 
 
@@ -162,7 +162,7 @@ class StatisticsViewModel @Inject constructor(private val dao: RoutineDao) : Vie
 
         return generateSequence(from) {it.plusDays(1)}
             .takeWhile { it <= to }
-            .count{ date -> routine.startDate <= date && date.dayOfWeek in routine.repeatDays}
+            .count { date -> routine.isScheduledOn(date) }
 
     }
 
