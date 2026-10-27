@@ -39,7 +39,7 @@ fun AppNavHost(modifier: Modifier = Modifier) {
                 navArgument(Routes.ROUTINE_ID_ARG) { type = NavType.LongType }
             )
         ) {
-            RoutineDetailScreen()
+            RoutineDetailScreen(onBack = { navController.popBackStack() })
         }
     }
 

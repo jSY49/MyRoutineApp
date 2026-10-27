@@ -107,6 +107,20 @@
     <string name="Statistic_rate_percent">%1$d%%</string>
 
 
+    <!--  루틴 상세  -->
+    <string name="RoutineDetail_back">뒤로</string>
+    <string name="RoutineDetail_edit">수정</string>
+    <string name="RoutineDetail_more">더보기</string>
+    <string name="RoutineDetail_legend_done">완료</string>
+    <string name="RoutineDetail_legend_missed">미완료</string>
+    <string name="RoutineDetail_month_record_title">%1$d월 기록</string>
+    <string name="RoutineDetail_month_record_empty">이 달은 기록이 없어요</string>
+    <string name="RoutineDetail_record_date">%1$d월 %2$d일 (%3$s)</string>
+    <string name="RoutineDetail_today_badge">오늘</string>
+    <string name="RoutineDetail_status_done">완료</string>
+    <string name="RoutineDetail_status_missed">미완료</string>
+    <string name="RoutineDetail_status_pending">진행 전</string>
+
     <!--  contentDescription  -->
     <string name="close">닫기</string>
 
