@@ -131,6 +131,3 @@ class RecordViewModel @Inject constructor(private val dao: RoutineDao) : ViewMod
 
 data class DayRoutineItem(val routine: Routine, val done: Boolean)
 
-// 그 날짜에 수행해야 하는 루틴인지
-fun Routine.isScheduledOn(date: LocalDate) =
-    !date.isBefore(startDate) && date.dayOfWeek in repeatDays

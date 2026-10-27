@@ -3,6 +3,7 @@ package com.jsy.myroutineapp.data.di
 import android.content.Context
 import androidx.room.Room
 import com.jsy.myroutineapp.data.local.AppDatabase
+import com.jsy.myroutineapp.data.local.MIGRATION_1_2
 import com.jsy.myroutineapp.data.local.RoutineDao
 import dagger.Module
 import dagger.Provides
@@ -24,6 +25,7 @@ object DatabaseModule {
             AppDatabase::class.java,
             "routine.db"
         )
+            .addMigrations(MIGRATION_1_2) //마이그레이션 시
             .build()
     }
 

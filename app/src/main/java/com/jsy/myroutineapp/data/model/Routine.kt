@@ -1,11 +1,14 @@
 package com.jsy.myroutineapp.data.model
 
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import java.time.DayOfWeek
 import java.time.LocalDate
+import java.util.UUID
 
-@Entity(tableName = "routines")
+@Entity(tableName = "routines",
+    indices = [Index("groupId")])   //그룹으로 자주 조회할 예정
 data class Routine(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
@@ -13,5 +16,11 @@ data class Routine(
     val category: RoutineCategory,
     val repeatDays: Set<DayOfWeek>,
     val description : String,
-    val startDate: LocalDate
+    val startDate: LocalDate,
+    val groupId : String = UUID.randomUUID().toString(),
+    val endDate : LocalDate? = null
 )
+
+// 그 날짜에 수행해야 하는 루틴인지
+fun Routine.isScheduledOn(date: LocalDate) =
+    !date.isBefore(startDate) && date.dayOfWeek in repeatDays

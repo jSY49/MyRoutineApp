@@ -7,6 +7,7 @@ import com.jsy.myroutineapp.data.local.PrefKeys
 import com.jsy.myroutineapp.data.local.RoutineDao
 import com.jsy.myroutineapp.data.model.Routine
 import com.jsy.myroutineapp.data.model.RoutineRecord
+import com.jsy.myroutineapp.data.model.isScheduledOn
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -68,6 +69,4 @@ class TodayViewModel @Inject constructor(
         }
     }
 
-    fun Routine.isScheduledOn(date: LocalDate) =
-        !date.isBefore(startDate) && date.dayOfWeek in repeatDays
 }

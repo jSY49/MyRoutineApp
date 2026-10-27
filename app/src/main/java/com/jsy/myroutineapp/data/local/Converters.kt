@@ -7,10 +7,12 @@ import java.time.LocalDate
 class Converters {
 
     @TypeConverter
-    fun fromLocalDate(date: LocalDate): Long = date.toEpochDay()
+    fun fromLocalDate(date: LocalDate?): Long? = date?.toEpochDay()
 
     @TypeConverter
-    fun toLocalDate(epochDay: Long): LocalDate = LocalDate.ofEpochDay(epochDay)
+    fun toLocalDate(epochDay: Long?): LocalDate? = epochDay?.let{
+        LocalDate.ofEpochDay(it)
+    }
 
     // Set<DayOfWeek> <-> "MONDAY,WEDNESDAY"
     @TypeConverter
