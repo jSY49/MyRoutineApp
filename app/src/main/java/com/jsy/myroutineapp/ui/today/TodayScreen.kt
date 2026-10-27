@@ -171,7 +171,7 @@ private fun TodayContent(
                 } else {
                     TodayAchievementCard(
                         total = routines.size,
-                        done = checkedIds.size
+                        done = routines.count { it.id in checkedIds }
                     )
                 }
             }
