@@ -42,7 +42,10 @@ import androidx.compose.material3.Surface as M3Surface
 
 // ViewModel/DB를 다루는 화면 (프리뷰 불가)
 @Composable
-fun RecordScreen(modifier: Modifier = Modifier) {
+fun RecordScreen(
+    onRoutineClick: (routineId: Long) -> Unit,
+    modifier: Modifier = Modifier
+) {
 
     val viewModel: RecordViewModel = hiltViewModel()
 
@@ -62,6 +65,7 @@ fun RecordScreen(modifier: Modifier = Modifier) {
         onNextMonth = viewModel::nextMonth,
         onSelectDate = viewModel::selectDate,
         onToggle = viewModel::setChecked,
+        onRoutineClick = onRoutineClick,
         modifier = modifier
     )
 }
@@ -78,6 +82,7 @@ private fun RecordContent(
     onNextMonth: () -> Unit,
     onSelectDate: (LocalDate) -> Unit,
     onToggle: (routineId: Long, checked: Boolean) -> Unit,
+    onRoutineClick: (routineId: Long) -> Unit,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(
@@ -139,7 +144,8 @@ private fun RecordContent(
                     title = item.routine.title,
                     repeatText = item.routine.repeatDays.toRepeatText(),
                     isDone = item.done,
-                    onToggle = { onToggle(item.routine.id, !item.done) }
+                    onToggle = { onToggle(item.routine.id, !item.done) },
+                    onClick = { onRoutineClick(item.routine.id) }
                 )
             }
 
@@ -223,6 +229,7 @@ private fun RecordContentPreview() {
         onPrevMonth = {},
         onNextMonth = {},
         onSelectDate = {},
-        onToggle = { _, _ -> }
+        onToggle = { _, _ -> },
+        onRoutineClick = {}
     )
 }

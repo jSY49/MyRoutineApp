@@ -103,7 +103,7 @@ fun MainScreen(
                     onAddRoutineClick = onAddRoutineClick,
                     onRoutineClick = onRoutineClick
                 )
-                BottomTabs.RecordTab -> RecordScreen()
+                BottomTabs.RecordTab -> RecordScreen(onRoutineClick = onRoutineClick)
                 BottomTabs.StatisticTab -> StatisticScreen()
             }
         }
