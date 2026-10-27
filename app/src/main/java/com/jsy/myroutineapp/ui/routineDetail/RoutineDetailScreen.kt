@@ -38,6 +38,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.jsy.myroutineapp.R
 import com.jsy.myroutineapp.data.model.Routine
 import com.jsy.myroutineapp.data.model.RoutineCategory
+import com.jsy.myroutineapp.data.model.isScheduledOn
 import com.jsy.myroutineapp.ui.common.MultipleDevicePreview
 import com.jsy.myroutineapp.ui.common.iconRes
 import com.jsy.myroutineapp.ui.common.labelRes
@@ -45,7 +46,6 @@ import com.jsy.myroutineapp.ui.record.components.CalendarDayCell
 import com.jsy.myroutineapp.ui.record.components.CalendarGrid
 import com.jsy.myroutineapp.ui.record.components.MonthHeader
 import com.jsy.myroutineapp.ui.record.components.WeekdayRow
-import com.jsy.myroutineapp.ui.record.isScheduledOn
 import com.jsy.myroutineapp.ui.theme.Background
 import com.jsy.myroutineapp.ui.theme.CategoryColor
 import com.jsy.myroutineapp.ui.theme.ErrorContainer
