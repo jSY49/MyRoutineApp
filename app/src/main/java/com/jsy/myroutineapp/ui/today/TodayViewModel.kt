@@ -12,6 +12,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -34,14 +35,16 @@ class TodayViewModel @Inject constructor(
             )
         }
 
-    val routines: StateFlow<List<Routine>> = dao.observeAllRoutines()
-        .stateIn(
+    private val today = MutableStateFlow(LocalDate.now())
+
+    val routines: StateFlow<List<Routine>> =
+        combine(dao.observeAllRoutines() , today){ all, date ->
+            all.filter { it.isScheduledOn(date) }
+        }.stateIn(
             viewModelScope,
             SharingStarted.WhileSubscribed(5000),
             emptyList()
         )
-
-    private val today = MutableStateFlow(LocalDate.now())
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val records: StateFlow<List<RoutineRecord>> = today
@@ -64,4 +67,7 @@ class TodayViewModel @Inject constructor(
             else dao.deleteRecord(routineId, date)
         }
     }
+
+    fun Routine.isScheduledOn(date: LocalDate) =
+        !date.isBefore(startDate) && date.dayOfWeek in repeatDays
 }
