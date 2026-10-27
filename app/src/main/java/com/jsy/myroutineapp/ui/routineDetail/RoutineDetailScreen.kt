@@ -16,15 +16,21 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -48,6 +54,7 @@ import com.jsy.myroutineapp.ui.record.components.MonthHeader
 import com.jsy.myroutineapp.ui.record.components.WeekdayRow
 import com.jsy.myroutineapp.ui.theme.Background
 import com.jsy.myroutineapp.ui.theme.CategoryColor
+import com.jsy.myroutineapp.ui.theme.Error
 import com.jsy.myroutineapp.ui.theme.ErrorContainer
 import com.jsy.myroutineapp.ui.theme.ErrorOutline
 import com.jsy.myroutineapp.ui.theme.ErrorText
@@ -86,6 +93,7 @@ fun RoutineDetailScreen(
 ) {
     val viewModel: RoutineDetailViewModel = hiltViewModel()
     val routine by viewModel.routine.collectAsStateWithLifecycle()
+    val rows by viewModel.rows.collectAsStateWithLifecycle()
     val doneDates by viewModel.doneDates.collectAsStateWithLifecycle()
     val month by viewModel.month.collectAsStateWithLifecycle()
 
@@ -93,6 +101,7 @@ fun RoutineDetailScreen(
     routine?.let {
         RoutineDetailContent(
             routine = it,
+            rows = rows,
             doneDates = doneDates,
             month = month,
             today = viewModel.today,
@@ -101,7 +110,7 @@ fun RoutineDetailScreen(
             onToggle = viewModel::setChecked,
             onBack = onBack,
             onEdit = {},    // TODO: 수정 화면 이동
-            onMore = {},    // TODO: 더보기 메뉴(삭제 등)
+            onDelete = { viewModel.deleteRoutine(onDeleted = onBack) },
             modifier = modifier
         )
     }
@@ -110,6 +119,7 @@ fun RoutineDetailScreen(
 @Composable
 private fun RoutineDetailContent(
     routine: Routine,
+    rows: List<Routine>,
     doneDates: Set<LocalDate>,
     month: YearMonth,
     today: LocalDate,
@@ -118,12 +128,37 @@ private fun RoutineDetailContent(
     onToggle: (date: LocalDate, checked: Boolean) -> Unit,
     onBack: () -> Unit,
     onEdit: () -> Unit,
-    onMore: () -> Unit,
+    onDelete: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val color = RoutineTheme.colors.categoryColor(routine.category)
-    val records = remember(routine, doneDates, month, today) {
-        monthRecords(routine, doneDates, month, today)
+    val records = remember(rows, doneDates, month, today) {
+        monthRecords(rows, doneDates, month, today)
+    }
+    var showDeleteDialog by remember { mutableStateOf(false) }
+
+    if (showDeleteDialog) {
+        AlertDialog(
+            onDismissRequest = { showDeleteDialog = false },
+            title = { Text(stringResource(R.string.RoutineDetail_delete_title)) },
+            text = { Text(stringResource(R.string.RoutineDetail_delete_desc)) },
+            confirmButton = {
+                TextButton(onClick = {
+                    showDeleteDialog = false
+                    onDelete()
+                }) {
+                    Text(
+                        text = stringResource(R.string.RoutineDetail_delete_confirm),
+                        color = Error
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteDialog = false }) {
+                    Text(stringResource(R.string.RoutineDetail_delete_cancel))
+                }
+            }
+        )
     }
 
     Scaffold(
@@ -134,7 +169,7 @@ private fun RoutineDetailContent(
                 color = color,
                 onBack = onBack,
                 onEdit = onEdit,
-                onMore = onMore
+                onDelete = { showDeleteDialog = true }
             )
         }
     ) { innerPadding ->
@@ -160,7 +195,7 @@ private fun RoutineDetailContent(
 
             item {
                 DetailCalendarCard(
-                    routine = routine,
+                    rows = rows,
                     doneDates = doneDates,
                     month = month,
                     today = today,
@@ -186,8 +221,10 @@ private fun DetailTopBar(
     color: CategoryColor,
     onBack: () -> Unit,
     onEdit: () -> Unit,
-    onMore: () -> Unit,
+    onDelete: () -> Unit,
 ) {
+    var menuOpen by remember { mutableStateOf(false) }
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -235,12 +272,31 @@ private fun DetailTopBar(
             }
         }
 
-        IconButton(onClick = onMore) {
-            Icon(
-                painter = painterResource(R.drawable.ic_more_vert),
-                contentDescription = stringResource(R.string.RoutineDetail_more),
-                tint = OnSurface
-            )
+        Box {
+            IconButton(onClick = { menuOpen = true }) {
+                Icon(
+                    painter = painterResource(R.drawable.ic_more_vert),
+                    contentDescription = stringResource(R.string.RoutineDetail_more),
+                    tint = OnSurface
+                )
+            }
+            DropdownMenu(
+                expanded = menuOpen,
+                onDismissRequest = { menuOpen = false }
+            ) {
+                DropdownMenuItem(
+                    text = {
+                        Text(
+                            text = stringResource(R.string.RoutineDetail_menu_delete),
+                            color = Error
+                        )
+                    },
+                    onClick = {
+                        menuOpen = false
+                        onDelete()
+                    }
+                )
+            }
         }
     }
 }
@@ -339,7 +395,7 @@ private fun RepeatDayChips(
 
 @Composable
 private fun DetailCalendarCard(
-    routine: Routine,
+    rows: List<Routine>,
     doneDates: Set<LocalDate>,
     month: YearMonth,
     today: LocalDate,
@@ -358,7 +414,7 @@ private fun DetailCalendarCard(
 
             MonthHeader(
                 month = month,
-                canGoPrev = month > YearMonth.from(routine.startDate),
+                canGoPrev = month > YearMonth.from(rows.minOf { it.startDate }),
                 canGoNext = month < YearMonth.from(today),
                 onPrev = onPrevMonth,
                 onNext = onNextMonth
@@ -372,7 +428,7 @@ private fun DetailCalendarCard(
             )
 
             CalendarGrid(month = month) { date, cellModifier ->
-                val state = dayState(routine, doneDates, today, date)
+                val state = dayState(rows, doneDates, today, date)
 
                 CalendarDayCell(
                     day = date.dayOfMonth,
@@ -611,13 +667,13 @@ private fun StatusBadge(
 }
 
 private fun dayState(
-    routine: Routine,
+    rows: List<Routine>,
     doneDates: Set<LocalDate>,
     today: LocalDate,
     date: LocalDate
 ): DayState = when {
     date in doneDates -> DayState.DONE
-    !routine.isScheduledOn(date) -> DayState.OFF
+    rows.none { it.isScheduledOn(date) } -> DayState.OFF
     date == today -> DayState.PENDING
     date.isBefore(today) -> DayState.MISSED
     else -> DayState.UPCOMING
@@ -625,17 +681,17 @@ private fun dayState(
 
 // 선택한 달에서 예정이었던 날을 최신순으로 (오늘 이후와 시작일 이전은 제외)
 private fun monthRecords(
-    routine: Routine,
+    rows: List<Routine>,
     doneDates: Set<LocalDate>,
     month: YearMonth,
     today: LocalDate
 ): List<MonthRecord> {
-    val first = maxOf(month.atDay(1), routine.startDate)
+    val first = maxOf(month.atDay(1), rows.minOf { it.startDate })
     val last = minOf(month.atEndOfMonth(), today)
 
     return generateSequence(last) { it.minusDays(1) }
         .takeWhile { !it.isBefore(first) }
-        .filter { routine.isScheduledOn(it) }
+        .filter { date -> rows.any { it.isScheduledOn(date) } }
         .map { date ->
             MonthRecord(
                 date = date,
@@ -657,8 +713,7 @@ private fun RoutineDetailContentPreview() {
         10,
         6
     )
-    RoutineDetailContent(
-        routine = Routine(
+    val routine = Routine(
             id = 1,
             title = "운동 30분",
             category = RoutineCategory.EXERCISE,
@@ -673,7 +728,10 @@ private fun RoutineDetailContentPreview() {
                 9,
                 28
             )
-        ),
+        )
+    RoutineDetailContent(
+        routine = routine,
+        rows = listOf(routine),
         doneDates = setOf(
             LocalDate.of(
                 2026,
@@ -698,6 +756,6 @@ private fun RoutineDetailContentPreview() {
         onToggle = { _, _ -> },
         onBack = {},
         onEdit = {},
-        onMore = {}
+        onDelete = {}
     )
 }
