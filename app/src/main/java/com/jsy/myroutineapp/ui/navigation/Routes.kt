@@ -8,4 +8,8 @@ object Routes {
     const val ROUTINE_DETAIL = "routineDetail/{$ROUTINE_ID_ARG}"
 
     fun routineDetail(routineId: Long) = "routineDetail/$routineId"
+
+    const val EDIT_ROUTINE = "editRoutine/{$ROUTINE_ID_ARG}"
+
+    fun editRoutine(routineId: Long) = "editRoutine/$routineId"
 }
