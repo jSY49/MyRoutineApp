@@ -35,7 +35,14 @@ fun CalendarDayCell(
     isToday: Boolean,
     isFuture: Boolean,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    // 아래는 달성률(heat) 색 대신 직접 색을 정하고 싶을 때만 사용
+    containerColor: Color? = null,
+    contentColor: Color? = null,
+    ringColor: Color? = null,
+    accentColor: Color = Primary,   // 선택 테두리 · 오늘 점
+    showTodayDot: Boolean = true,
+    enabled: Boolean = !isFuture,
 ) {
 
     Box(
@@ -56,19 +63,30 @@ fun CalendarDayCell(
                         matchHeightConstraintsFirst = true
                     )
                     .clip(CircleShape)
-                    .background(if (isFuture) Color.Transparent else levelColor(rate))
+                    .background(
+                        containerColor ?: if (isFuture) Color.Transparent else levelColor(rate)
+                    )
                     .then(
-                        if (isSelected) Modifier.border(
-                            BorderStroke(
-                                2.dp,
-                                Primary
-                            ),
-                            CircleShape
-                        )
-                        else Modifier
+                        when {
+                            isSelected -> Modifier.border(
+                                BorderStroke(
+                                    2.dp,
+                                    accentColor
+                                ),
+                                CircleShape
+                            )
+                            ringColor != null -> Modifier.border(
+                                BorderStroke(
+                                    1.5.dp,
+                                    ringColor
+                                ),
+                                CircleShape
+                            )
+                            else -> Modifier
+                        }
                     )
                     .clickable(
-                        enabled = !isFuture,
+                        enabled = enabled,
                         onClick = onClick
                     ),
                 contentAlignment = Alignment.Center
@@ -76,7 +94,8 @@ fun CalendarDayCell(
                 Text(
                     text = day.toString(),
                     style = Typography.bodyMedium,
-                    color = if (isFuture) OnSurfaceVariant.copy(alpha = 0.4f) else levelTextColor(rate)
+                    color = contentColor
+                        ?: if (isFuture) OnSurfaceVariant.copy(alpha = 0.4f) else levelTextColor(rate)
                 )
             }
 
@@ -87,7 +106,7 @@ fun CalendarDayCell(
                 modifier = Modifier
                     .size(4.dp)
                     .clip(CircleShape)
-                    .background(if (isToday) Primary else Color.Transparent)
+                    .background(if (isToday && showTodayDot) accentColor else Color.Transparent)
             )
         }
     }

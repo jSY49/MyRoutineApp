@@ -65,57 +65,75 @@ fun RecordCalendar(
                 )
             )
 
-            val offset = month.atDay(1).dayOfWeek.value % 7
-            val cells: List<LocalDate?> =
-                List(offset) { null } + (1..month.lengthOfMonth()).map { month.atDay(it) }
-
-            cells.chunked(7)
-                .forEach { week ->
-                    Row(
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        week.forEach { date ->
-                            if (date == null) {
-                                Box(modifier = Modifier.weight(1f))
-                            } else {
-                                CalendarDayCell(
-                                    day = date.dayOfMonth,
-                                    rate = rates[date] ?: 0f,
-                                    isSelected = date == selected,
-                                    isToday = date == today,
-                                    isFuture = date.isAfter(today),
-                                    onClick = { onSelect(date) },
-                                    modifier = Modifier.weight(1f)
-                                )
-                            }
-                        }
-                        repeat(7 - week.size) {
-                            Box(modifier = Modifier.weight(1f))
-                        }
-                    }
-                }
+            CalendarGrid(month = month) { date, cellModifier ->
+                CalendarDayCell(
+                    day = date.dayOfMonth,
+                    rate = rates[date] ?: 0f,
+                    isSelected = date == selected,
+                    isToday = date == today,
+                    isFuture = date.isAfter(today),
+                    onClick = { onSelect(date) },
+                    modifier = cellModifier
+                )
+            }
             CalendarLegend(Modifier.padding(top = 16.dp))
         }
     }
 }
 
+// 해당 월의 날짜 셀을 일요일 시작 7열 격자로 배치. 셀 모양은 cell 에서 정한다.
 @Composable
-private fun MonthHeader(
+fun CalendarGrid(
+    month: YearMonth,
+    modifier: Modifier = Modifier,
+    cell: @Composable (date: LocalDate, modifier: Modifier) -> Unit
+) {
+    val offset = month.atDay(1).dayOfWeek.value % 7
+    val cells: List<LocalDate?> =
+        List(offset) { null } + (1..month.lengthOfMonth()).map { month.atDay(it) }
+
+    Column(modifier) {
+        cells.chunked(7)
+            .forEach { week ->
+                Row(
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    week.forEach { date ->
+                        if (date == null) {
+                            Box(modifier = Modifier.weight(1f))
+                        } else {
+                            cell(date, Modifier.weight(1f))
+                        }
+                    }
+                    repeat(7 - week.size) {
+                        Box(modifier = Modifier.weight(1f))
+                    }
+                }
+            }
+    }
+}
+
+@Composable
+fun MonthHeader(
     month: YearMonth,
     canGoNext: Boolean,
     onPrev: () -> Unit,
     onNext: () -> Unit,
+    canGoPrev: Boolean = true,
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        IconButton(onClick = onPrev) {
+        IconButton(
+            onClick = onPrev,
+            enabled = canGoPrev
+        ) {
             Icon(
                 painter = painterResource(R.drawable.ic_chevron_left),
                 contentDescription = "이전 달",
-                tint = if (canGoNext) OnSurface else OnSurfaceVariant.copy(alpha = 0.4f)
+                tint = if (canGoPrev) OnSurface else OnSurfaceVariant.copy(alpha = 0.4f)
             )
         }
         Text(
@@ -137,7 +155,7 @@ private fun MonthHeader(
 }
 
 @Composable
-private fun WeekdayRow(modifier: Modifier = Modifier) {
+fun WeekdayRow(modifier: Modifier = Modifier) {
     val days = listOf(
         DayOfWeek.SUNDAY,
         DayOfWeek.MONDAY,

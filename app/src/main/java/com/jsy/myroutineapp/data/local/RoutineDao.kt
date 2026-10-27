@@ -17,6 +17,9 @@ interface RoutineDao {
     @Query("SELECT * FROM routines")
     fun observeAllRoutines() : Flow<List<Routine>> // 루틴 추가 시 자동 갱신
 
+    @Query("SELECT * FROM routines WHERE id = :routineId")
+    fun observeRoutine(routineId: Long): Flow<Routine?>  // 삭제되면 null
+
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertRoutine(routine: Routine) : Long
 
